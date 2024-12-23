@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# This script is a wrapper around xdg-open that logs the arguments passed to it
+# and fixes an issue wiht VarSeq 2 where xdg-open is called with quotes around
+# the file path which causes it to fail.
+
+# Log file location
+LOG_FILE="/tmp/xdg-open-debug.log"
+
+# Check if the argument starts and ends with quotes and strip them if present
+CLEAN_ARGS=()
+for ARG in "$@"; do
+  if [[ "$ARG" == \"*\" && "$ARG" == *\" ]]; then
+    CLEAN_ARGS+=("${ARG:1:-1}")
+  else
+    CLEAN_ARGS+=("$ARG")
+  fi
+done
+
+# Log the current environment variables
+echo "xdg-open ${CLEAN_ARGS[@]}" >> "$LOG_FILE" 2>&1
+
+# Call the original xdg-open with cleaned arguments
+/usr/bin/xdg-open "${CLEAN_ARGS[@]}" >> "$LOG_FILE" 2>&1

@@ -1,0 +1,47 @@
+ARG BASE_TAG="latest"
+FROM registry.goldenhelix.com/public/ghdesktop-core:$BASE_TAG
+USER root
+
+ENV STARTUPDIR /dockerstartup
+ENV INST_SCRIPTS $STARTUPDIR/install
+WORKDIR $HOME
+
+######### Customize Container Here ###########
+
+# Install Only Office
+COPY ./src/ubuntu/install/only_office $INST_SCRIPTS/only_office/
+RUN bash $INST_SCRIPTS/only_office/install_only_office.sh  && rm -rf $INST_SCRIPTS/only_office/
+
+# Install Chromium
+COPY ./src/ubuntu/install/chromium $INST_SCRIPTS/chromium/
+RUN bash $INST_SCRIPTS/chromium/install_chromium.sh && rm -rf $INST_SCRIPTS/chromium/
+
+# Security modifications
+# COPY ./src/common/chrome-managed-policies/urlblocklist.json /etc/chromium/policies/managed/urlblocklist.json
+
+# The core image has the following app launching shortcuts as part of the panel (in this order)
+# 17306765011.desktop (web browser)
+# 17306804393.desktop (office)
+# 17306804534.desktop (terminal)
+# 17306804705.desktop (not used)
+# 17306804756.desktop (not used)
+RUN cp /usr/share/applications/chromium.desktop .config/xfce4/panel/launcher-5/17306765011.desktop
+RUN cp /usr/share/applications/onlyoffice-desktopeditors.desktop .config/xfce4/panel/launcher-5/17306804393.desktop
+
+# We could support Custom Certificate Authority if needed
+# COPY ./src/ubuntu/install/certificates $INST_SCRIPTS/certificates/
+# RUN bash $INST_SCRIPTS/certificates/install_ca_cert.sh && rm -rf $INST_SCRIPTS/certificates/
+
+#COPY ./src/ubuntu/install/only_office/custom_startup.sh $STARTUPDIR/custom_startup.sh
+#RUN chmod +x $STARTUPDIR/custom_startup.sh
+#RUN chmod 755 $STARTUPDIR/custom_startup.sh
+
+######### End Customizations ###########
+
+RUN chown 1000:0 $HOME
+
+ENV HOME /home/ghuser
+WORKDIR $HOME
+RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+
+USER 1000

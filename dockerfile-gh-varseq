@@ -1,0 +1,53 @@
+ARG BASE_IMAGE="registry.goldenhelix.com/public/ghdesktop-office-web:latest"
+FROM $BASE_IMAGE AS base_layer
+
+USER root
+
+ENV STARTUPDIR /dockerstartup
+ENV INST_SCRIPTS $STARTUPDIR/install
+WORKDIR $HOME
+
+######### Customize Container Here ###########
+
+ARG VS_VERSION=2.6.2
+
+# URL to download the VarSeq installer
+ARG DOWNLOAD_BASE_URL="http://proxy.goldenhelix.com:8080/Installers/"
+#ARG DOWNLOAD_BASE_URL="http://proxy.goldenhelix.com:8080/Nightly/"
+#ARG DOWNLOAD_BASE_URL="https://www.goldenhelix.com/Downloads/VarSeq/"
+# Optional
+ARG DOWNLOAD_FILE_SUFFIX="--SP1"
+ARG DOWNLOAD_FILE_PREFIX=""
+
+COPY  ./src/gh/install/vs_custom_startup.sh $STARTUPDIR/custom_startup.sh
+COPY ./src/gh/install/install_varseq.sh $INST_SCRIPTS/varseq/
+RUN bash $INST_SCRIPTS/varseq/install_varseq.sh "${DOWNLOAD_BASE_URL}/${DOWNLOAD_FILE_PREFIX}VarSeq-Lin64-${VS_VERSION}${DOWNLOAD_FILE_SUFFIX}.tar.gz" \
+  && rm -rf $INST_SCRIPTS/varseq/ \
+  && chmod +x $STARTUPDIR/custom_startup.sh \
+  && chmod 755 $STARTUPDIR/custom_startup.sh
+
+# Clear this if you don't want to shutdown the container if VarSeq exists
+ENV MONITOR_PROCESS 1
+
+# This is only needed for VarSeq 2, it fixes xdg-open being called with quoted files
+COPY ./src/gh/install/xdg-open /usr/local/bin/xdg-open
+# Set as executable or delete it based on the INSTALL_XDG_OPEN flag
+ARG INSTALL_XDG_OPEN=false
+RUN if [ "$INSTALL_XDG_OPEN" = "true" ]; then \
+      chmod +x /usr/local/bin/xdg-open; \
+    else \
+      rm /usr/local/bin/xdg-open; \
+    fi
+
+# Add to task bar (each of these launcher-5 numbers is a slot in the app launcher)
+RUN cp /usr/share/applications/varseq.desktop .config/xfce4/panel/launcher-5/17306804705.desktop
+
+######### End Customizations ###########
+
+RUN chown 1000:0 $HOME
+
+ENV HOME /home/ghuser
+WORKDIR $HOME
+RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+
+USER 1000
