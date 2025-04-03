@@ -26,15 +26,27 @@ mkdir -p $HOME/Workspace/Documents/$USERNAME/VarSeqUserData
 if [ -d $HOME/Workspace/Documents/$USERNAME/VarSeqUserData ]; then
  mkdir -p "$HOME/.local/share/Golden Helix/VarSeq/"
  ln -s $HOME/Workspace/Documents/$USERNAME/VarSeqUserData "$HOME/.local/share/Golden Helix/VarSeq/User Data"
+ touch $HOME/Workspace/Documents/$USERNAME/VarSeqUserData/vsprops.json
 fi
+ln -s $HOME/Workspace /w/$GH_WORKSPACE_ID
 set -e
 
-# If the SERVER environment variable is set, create a hosts.json file to
+# If the GH_SERVER environment variable is set, create a hosts.json file to
 # have VarSeq log into the VSW server for authentication
-if [ ! -z "$SERVER" ] && [ ! -z "$USE_SERVER_AUTH" ]; then
-   cat > /opt/VarSeq/hosts.json << 'EOF'
+if [ ! -z "$GH_SERVER" ] && [ ! -z "$USE_SERVER_AUTH" ]; then
+   mkdir -p /opt/VarSeq/TrustedCAs
+   echo | openssl s_client -showcerts -servername $GH_SERVER -connect $GH_SERVER:443 2>/dev/null | openssl x509 -inform pem -out /opt/VarSeq/TrustedCAs/$GH_SERVER.pem
+
+   cat > /opt/VarSeq/hosts.json << EOF
 {
-   "update": "https://${SERVER}/auth/api/update/"
+   "update": "https://${GH_SERVER}/auth/api/update/",
+   "localOnlyLatest": true
+}
+EOF
+else
+   cat > /opt/VarSeq/hosts.json << EOF
+{
+   "localOnlyLatest": true
 }
 EOF
 fi

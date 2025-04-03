@@ -2,8 +2,7 @@
 
 ## Parse input ##
 REGISTRY=registry.goldenhelix.com/public
-DAY=$(date +'%y%m%d')
-TAG=$(arch)-${DAY}
+TAG=latest
 VS_VERSION=2.6.2
 DOWNLOAD_FILE_SUFFIX="--SP1"
 # Set this to true for VarSeq 2, false for VarSeq 3

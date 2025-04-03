@@ -42,12 +42,17 @@ RUN if [ "$INSTALL_XDG_OPEN" = "true" ]; then \
 # Add to task bar (each of these launcher-5 numbers is a slot in the app launcher)
 RUN cp /usr/share/applications/varseq.desktop .config/xfce4/panel/launcher-5/17306804705.desktop
 
+# Set XDG_CACHE_HOME to avoid fontconfig errors
+ENV XDG_CACHE_HOME=/tmp/.cache
+
 ######### End Customizations ###########
 
 RUN chown 1000:0 $HOME
 
+
 ENV HOME /home/ghuser
 WORKDIR $HOME
-RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+RUN mkdir -p $HOME && chown -R 1000:0 $HOME && mkdir -p /w && chown -R 1000:0 /w
+RUN chown -R 1000:0 /opt/VarSeq
 
 USER 1000

@@ -9,3 +9,5 @@ docker build \
   -t ${REGISTRY}/ghdesktop-office-web:$(arch)-${DAY} \
   --build-arg BASE_TAG="$(arch)-debian-bookworm-${DAY}" \
   -f dockerfile-gh-office-web .
+
+docker tag ${REGISTRY}/ghdesktop-office-web:$(arch)-${DAY} ${REGISTRY}/ghdesktop-office-web:latest
