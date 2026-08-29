@@ -13,6 +13,9 @@ cp /usr/share/applications/code.desktop $HOME/Desktop
 chmod +x $HOME/Desktop/code.desktop
 chown 1000:1000 $HOME/Desktop/code.desktop
 
+# Modify the existing /usr/bin/code wrapper to include --no-sandbox
+# sed -i 's/ELECTRON_RUN_AS_NODE=1 "$ELECTRON" "$CLI" "$@"/ELECTRON_RUN_AS_NODE=1 "$ELECTRON" "$CLI" "--no-sandbox $@"/' /usr/bin/code
+
 # Conveniences for python development
 zypper install -yn python3-setuptools python3-virtualenv
 if [ -z ${SKIP_CLEAN+x} ]; then

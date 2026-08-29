@@ -17,6 +17,9 @@ sed -i 's#/usr/share/code/code#/usr/share/code/code --no-sandbox##' /usr/share/a
 cp /usr/share/applications/code.desktop $HOME/Desktop
 chmod +x $HOME/Desktop/code.desktop
 chown 1000:1000 $HOME/Desktop/code.desktop
+
+# Modify the existing /usr/bin/code wrapper to include --no-sandbox
+sed -i 's/ELECTRON_RUN_AS_NODE=1 "$ELECTRON" "$CLI" "$@"/ELECTRON_RUN_AS_NODE=1 "$ELECTRON" "$CLI" "--no-sandbox" "$@"/' /usr/bin/code
 rm vs_code.rpm
 
 # Conveniences for python development
