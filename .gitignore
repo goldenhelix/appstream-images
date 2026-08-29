@@ -1,0 +1,10 @@
+# Build inputs staged locally, never committed.
+#
+# src/varseq/varseq.tar.gz is a ~380MB VarSeq installer staged by hand for
+# dockerfile-gh-varseq-bake (see build-varseq-trixie.sh). There is no
+# .gitignore protecting this by default, and a stray `git add .` would
+# commit it.
+src/varseq/*.tar.gz
+src/**/kasmvncserver.deb
+
+__pycache__/
